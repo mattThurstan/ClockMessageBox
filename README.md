@@ -5,7 +5,7 @@ LED Matrix and ESP8266 project.
 #### Hardware
 - WeMos D1 (R2 & mini) (ESP8266), 80 MHz, 115200 baud, 4M (3M)
 - Max7219 LED matrix
-- DS3231 Clock
+- DS3231 Clock (with temperature and memory. batter will last about 8 years)
 
 #### Software
 - https://github.com/esp8266/Arduino
@@ -47,7 +47,8 @@ Originally based on project by aapicella (mostly replaced now).
 
 - ( To display the IP again touch the front button. )  
 - ( To clear a message touch the front button. )  
-- ( Message will timeout and revert to clock (currently) after 1 hour. )   
+- ( Message will timeout and revert to clock (currently) after 1 hour. ) 
+- ( Clock Message Box will attempt to update date and time everytime it powers on. )
 
 ### Reference
 https://www.w3schools.com/tags/ref_httpmethods.asp <br>
