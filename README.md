@@ -49,6 +49,7 @@ Originally based on project by aapicella (mostly replaced now).
 - ( To clear a message touch the front button. )  
 - ( Message will timeout and revert to clock (currently) after 1 hour. ) 
 - ( Clock Message Box will attempt to update date and time everytime it powers on. )
+- ( Clock Message Box automatically adjusts for UK daylight savings. )
 
 ### Reference
 https://www.w3schools.com/tags/ref_httpmethods.asp <br>

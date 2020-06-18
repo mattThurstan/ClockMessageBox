@@ -41,12 +41,13 @@
 #include <MD_MAX72xx.h>                   // https://github.com/MajicDesigns/MD_MAX72XX
 #include <Time.h>
 #include <TimeLib.h>                      // https://github.com/PaulStoffregen/Time
-#include <DS1307RTC.h>                    // https://github.com/PaulStoffregen/DS1307RTC
+//#include <DS1307RTC.h>                    // https://github.com/PaulStoffregen/DS1307RTC - for DS3231 Clock
+#include <MT_DS1307RTC.h>                 // https://github.com/mattThurstan/MT_DS1307RTC - for DS3231 Clock (with basic temperature)
 #include <Timezone.h>                     // https://github.com/JChristensen/Timezone
 
 /*----------------------------system----------------------------*/
 const String _progName = "ClockMessageBox";
-const String _progVers = "1.00";          // Working
+const String _progVers = "1.10";          // Basic temperature display (not accurate, leaving out for now).
 #define DEBUG 0                           // 0 or 1 - remove later
 #define DEBUG_WIFI 0                      // 0 or 1 - remove later
 #define DEBUG_DISPLAY 0                   // 0 or 1 - remove later
@@ -88,6 +89,8 @@ long _showIpDisplayInterval = 10000;      // Amount of time to display the IP in
 volatile boolean _btLock = false;         // Button lock
 unsigned long _btLockSaveTime = 0;        // Save the current time
 long _btLockInterval = 1000;              // Amount of time to lock the button in milliseconds
+
+volatile boolean _showTempActive = false; // Is the temperature currently being shown?
 
 /*----------------------------LED Matrix------------------------*/
 #define HARDWARE_TYPE MD_MAX72XX::GENERIC_HW 

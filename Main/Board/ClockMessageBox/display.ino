@@ -41,18 +41,35 @@ void setDisplayText()
   timeStamp = GetTime();                  // Get the time
   
   if (_msgActive == true) { 
+    _showTempActive = false;  // bit of a hack
     if (timeStamp.Hour >= _msgTimeoutNextHr && timeStamp.Minute >= _msgTimeoutNextMin) {
       cancelMessage();
       if (DEBUG_DISPLAY) { Serial.println("Message canceled by timeout"); }
     } else {
       checkMsgCancelBt();
     }
-  } else if (_showIpActive == true) {
+  } 
+  else if (_showIpActive == true) {
+    _showTempActive = false;  // bit of a hack
     String ipStr = " _ " + String(_ip[0]) + '.' + String(_ip[1]) + '.' + String(_ip[2]) + '.' + String(_ip[3]);
     if (DEBUG_DISPLAY) { Serial.print("IP displayed - "); Serial.println(ipStr);}
     strcpy(_text, ipStr.c_str());
-    _length=strlen(_text);
-  } else {
+    _length = strlen(_text);
+  } 
+/*  
+  else if (timeStamp.Minute == 0 || timeStamp.Minute == 15 || timeStamp.Minute == 30 || timeStamp.Minute == 45) {
+    if (_showTempActive == false) {
+      String s;
+      s = String(RTC.getTemperatureBasic());    // Get temp and convert int16_t to string
+      s += "c";
+      strcpy(_text, s.c_str());
+      _length = strlen(_text);
+      _showTempActive = true;
+    }
+  }
+*/ 
+  else {
+    _showTempActive = false;  // bit of a hack
     String tHr = String(timeStamp.Hour);
     String tMin = String(timeStamp.Minute);
     if (timeStamp.Hour < 10) { tHr = "0" + String(timeStamp.Hour); }
@@ -60,7 +77,7 @@ void setDisplayText()
     //String timeString = String(timeStamp.Hour) + ":" + String(timeStamp.Minute) + ":" + String(timeStamp.Second);
     String timeString = tHr + ":" + tMin;
     strcpy(_text, timeString.c_str());
-    _length=strlen(_text);
+    _length = strlen(_text);
   }
 
 }
