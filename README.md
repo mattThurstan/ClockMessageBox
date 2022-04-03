@@ -1,11 +1,12 @@
 # Clock Message Box
-LED Matrix and ESP8266 project.
+LED Matrix and ESP8266 project. <br> 
+https://hackaday.io/project/173256-clock-message-box
 
 ### Equipment
 #### Hardware
 - WeMos D1 (R2 & mini) (ESP8266), 80 MHz, 115200 baud, 4M (3M)
 - Max7219 LED matrix
-- DS3231 Clock (with temperature and memory. batter will last about 8 years)
+- DS3231 Clock (with temperature and memory. battery will last about 8 years)
 
 #### Software
 - https://github.com/esp8266/Arduino
@@ -36,13 +37,14 @@ Originally based on project by aapicella (mostly replaced now).
 - Power on.  
 - Connect your phone/tablet/computer to Wifi device "ClockMessageBox".  
 - Connection password is "password".  
-- When successfull open browser and goto 192.168.4.1   
+- When successfull open browser and goto 192.168.4.1  
+- On some devices the auto-capture will work differently. For example, on my Android device it asks me if I want to sign in to this device, this then takes me to the config page. 
 - Select the Wifi device you want it connected to (probably your home router).  
 - Enter the password for that device.  
 - Read the instructions on the page to tell if it was successfull or not.   
 - If not repeat.   
 - When successfull the Clock Message Box will save the connection and (attempt to) automatically connect to this every time it powers on.   
-- On power-up the Clock Message Box will display the IP it has been assigned.   
+- On power-up the Clock Message Box should display the IP it has been assigned.   
 - Open browser and goto that IP to send the box messages.  
 
 - ( To display the IP again touch the front button. )  
