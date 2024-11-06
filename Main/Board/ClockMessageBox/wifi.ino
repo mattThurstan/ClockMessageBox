@@ -13,7 +13,7 @@ void setupWifiManager()
   // if empty will auto generate SSID, if password is blank it will be anonymous AP (wm.autoConnect())
   // then goes into a blocking loop awaiting configuration and will return success result
 
-  if (!DEBUG) { wm.setDebugOutput(false); }  // Debug is enabled by default. This will turn off Wifi Manager debug output
+  if (!DEBUG_WIFI_HERE) { wm.setDebugOutput(false); }  // Debug is enabled by default. This will turn off Wifi Manager debug output
   
   bool res;
   // res = wm.autoConnect(); // auto generated AP name from chipid
@@ -22,13 +22,13 @@ void setupWifiManager()
   
   if(!res) {
     _wifiAvailable = false;
-    if (DEBUG) { Serial.println("Failed to connect to router."); }
+    if (DEBUG_WIFI_HERE) { Serial.println("Failed to connect to router."); }
     // ESP.restart();
   } 
   else {
     //if you get here you have connected to the WiFi   
     _wifiAvailable = true; 
-    if (DEBUG) { Serial.println("connected to wifi router.)"); }
+    if (DEBUG_WIFI_HERE) { Serial.println("connected to wifi router.)"); }
   }
 }
 
@@ -37,7 +37,7 @@ void setupServer()
   // Start file system
   if(LittleFS.begin())
   {
-    if (DEBUG) { 
+    if (DEBUG_WIFI_HERE) { 
       Dir dir = LittleFS.openDir("/");
       while (dir.next()) {
         String fileName = dir.fileName();
@@ -47,7 +47,7 @@ void setupServer()
       Serial.printf("\n");
     }
   }
-  else { if (DEBUG) { Serial.println("An Error has occurred while mounting LittleFS"); } }
+  else { if (DEBUG_WIFI_HERE) { Serial.println("An Error has occurred while mounting LittleFS"); } }
   
   // Start TCP (HTTP) server
   webServerGetPostSetup();
@@ -56,7 +56,7 @@ void setupServer()
   
   _ip = WiFi.localIP();
   String ipStr = "Connected on " + String(_ip[0]) + '.' + String(_ip[1]) + '.' + String(_ip[2]) + '.' + String(_ip[3]) + " ...";
-  if (DEBUG) { Serial.print("Server started on "); Serial.println(ipStr);}
+  if (DEBUG_WIFI_HERE) { Serial.print("Server started on "); Serial.println(ipStr);}
   strcpy(_text, ipStr.c_str());
   _length = strlen(_text);
 }
@@ -89,7 +89,7 @@ void webServerGetPostSetup()
       inputParam = "none";
     }
     
-    if (DEBUG) { Serial.println(inputMessage); }
+    if (DEBUG_WIFI_HERE) { Serial.println(inputMessage); }
     /*
     request->send(200, "text/html", "HTTP POST request sent to your ESP8266 on input field (" 
                                      + inputParam + ") with value: " + inputMessage +

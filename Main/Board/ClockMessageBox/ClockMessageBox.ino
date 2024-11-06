@@ -1,6 +1,6 @@
 /*
     'ClockMessageBox' by Thurstan. Wifi connected box with LED Matrix showing clock and messages.
-    Copyright (C) 2020  MTS Standish (Thurstan|mattKsp)
+    Copyright (C) 2024  MTS Standish (Thurstan|mattKsp)
     
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -47,9 +47,9 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "ClockMessageBox";
-const String _progVers = "1.10";          // Basic temperature display (not accurate, leaving out for now).
+const String _progVers = "1.2";           // Updated libraries and tweaked.
 #define DEBUG 0                           // 0 or 1 - remove later
-#define DEBUG_WIFI 0                      // 0 or 1 - remove later
+#define DEBUG_WIFI_HERE 0                 // 0 or 1 - remove later
 #define DEBUG_DISPLAY 0                   // 0 or 1 - remove later
 #define DEBUG_TIME 0                      // 0 or 1 - remove later
 #define DEBUG_BT 0                        // 0 or 1 - remove later
@@ -143,14 +143,14 @@ tmElements_t GetTime()
   //local = makeTime(timeStamp);            // Convert the tmElements_t to a time_t variable with function makeTime
   breakTime(local, timeStamp);            // Convert back to a tmElements_t with function breakTime
   
-  if (DEBUG_TIME) { 
+/*  if (DEBUG_TIME) { 
     Serial.print("The time is now: ");
     Serial.print(hour());
     printDigits(minute());
     printDigits(second());
     Serial.println();
   }
-  
+*/  
   return timeStamp;
 }
 
@@ -175,7 +175,7 @@ void setup()
   pinMode(BT_PIN, INPUT);                 // Set button pin as input (with external 10K pullup)
   
   setSyncProvider(RTC.get);               // the function to get the time from the RTC
-  if (DEBUG) {
+  if (DEBUG_TIME) {
     if(timeStatus()!= timeSet) { Serial.println("Unable to sync with the RTC"); }
     else { Serial.println("RTC has set the system time"); }
   }

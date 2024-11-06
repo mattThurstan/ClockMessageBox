@@ -52,7 +52,7 @@ void setBtLock()
     unsigned long currentTime = millis(); // Get the current time
     _btLockSaveTime = currentTime;        // Save the current time
     _btLock = true;                       // Lock the button
-    if (DEBUG) { Serial.println("Button lock set"); }
+    if (DEBUG_BT) { Serial.println("Button lock set"); }
 }
 
 /*
@@ -65,7 +65,7 @@ void checkBtLock()
     unsigned long currentTime = millis(); // Get the current time
     if (currentTime - _btLockSaveTime > _btLockInterval) {
       _btLock = false;                    // Cancel button lock
-      if (DEBUG) { Serial.println("Button lock canceled"); }
+      if (DEBUG_BT) { Serial.println("Button lock canceled"); }
     }
   }
 }

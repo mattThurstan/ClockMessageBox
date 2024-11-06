@@ -32,8 +32,9 @@ void updateTimeDate()
   int yr = currentYear-2000;
   
   setTime(_timeClient.getHours(), _timeClient.getMinutes(), _timeClient.getSeconds(), _timeClient.getDay(), currentMonth, yr);
-  
-  if (DEBUG) {
+  saveTime(_timeClient.getDay(), currentMonth, yr, _timeClient.getHours(), _timeClient.getMinutes(), _timeClient.getSeconds());
+
+  if (DEBUG_TIME) {
     Serial.print("The time has been set to: ");
     Serial.print(hour());
     printDigits(minute());
