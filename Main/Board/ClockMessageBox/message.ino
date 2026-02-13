@@ -1,7 +1,8 @@
 /*----------------------------message---------------------------*/
 
 /*
- * Message received.
+ * Receive the message and setup.
+ * Call from MQTT
  */
 void receiveMessage(String message)
 {

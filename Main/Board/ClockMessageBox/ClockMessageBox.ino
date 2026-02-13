@@ -1,6 +1,6 @@
 /*
     'ClockMessageBox' by Thurstan. Wifi connected box with LED Matrix showing clock and messages.
-    Copyright (C) 2024  MTS Standish (Thurstan|mattKsp)
+    Copyright (C) 2026  MTS Standish (Thurstan|mattKsp)
     
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,14 +27,12 @@
 */
 
 /*----------------------------libraries-------------------------*/
-#include <LittleFS.h>                     // ESP8266 file system
+//#include <LittleFS.h>                     // ESP8266 file system
 // Captive web portal @ web page @ 192.168.4.1
-//#include <WiFiManager.h>                  // https://github.com/tzapu/WiFiManager - clash with ESPAsyncWebServer
+#include <WiFiManager.h>                  // https://github.com/tzapu/WiFiManager - clash with ESPAsyncWebServer
 //#include <AsyncWiFiManager.h>             // https://github.com/lbussy/AsyncWiFiManager - try this fork
-#include <ESPAsyncWiFiManager.h>          // https://github.com/alanswx/ESPAsyncWiFiManager - or this - aagghhhh....
-// ok, it works with ESP Async WIFI Manager fork.. now walk away really slowly....
+//#include <ESPAsyncWiFiManager.h>          // https://github.com/alanswx/ESPAsyncWiFiManager - or this - aagghhhh....
 #include <SPI.h>
-#include <ESPAsyncWebServer.h>            // https://github.com/me-no-dev/ESPAsyncWebServer
 #include <WiFiUdp.h>
 #include <NTPClient.h>
 #include <MD_Parola.h>                    // https://github.com/MajicDesigns/MD_Parola 
@@ -47,11 +45,11 @@
 
 /*----------------------------system----------------------------*/
 const String _progName = "ClockMessageBox";
-const String _progVers = "1.2";           // Updated libraries and tweaked.
-#define DEBUG 0                           // 0 or 1 - remove later
+const String _progVers = "1.3";           // Rebuild with just WIFI portal and time.
+#define DEBUG 1                           // 0 or 1 - remove later
 #define DEBUG_WIFI_HERE 0                 // 0 or 1 - remove later
 #define DEBUG_DISPLAY 0                   // 0 or 1 - remove later
-#define DEBUG_TIME 0                      // 0 or 1 - remove later
+#define DEBUG_TIME 1                      // 0 or 1 - remove later
 #define DEBUG_BT 0                        // 0 or 1 - remove later
 
 /*----------------------------pins------------------------------*/
@@ -68,7 +66,6 @@ const String _progVers = "1.2";           // Updated libraries and tweaked.
 #define BT_PIN    16                      // BT to D0 (GPIO16) with external 10K pullup / touch bt is active low
 
 /*-----------------------------WIFI-----------------------------*/
-AsyncWebServer _webServer(80);            // TCP server at port 80 will respond to HTTP requests
 DNSServer dns;                            // ??? notactually used, but needed for ESP Async WIFI manager setup
 IPAddress _ip;
 bool _wifiAvailable = false;              // Is wifi available for use?
@@ -180,13 +177,16 @@ void setup()
     else { Serial.println("RTC has set the system time"); }
   }
 
+  setInitDisplayText();
   setupDisplay();
+  displayText(_text);
   setupWifiManager();
+  setupMqtt();
 
   if (_wifiAvailable) 
   {
     updateTimeDate();
-    setupServer();
+    //setupServer();
   }
   delay(1);
 }
@@ -194,9 +194,9 @@ void setup()
 void loop() 
 {
   checkShowIpBt();
+  loopMqtt();
   
   setDisplayText();                             // Contains a check for message cancel button
-  
   displayText(_text);
 
   checkBtLock();

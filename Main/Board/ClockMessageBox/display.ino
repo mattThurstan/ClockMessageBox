@@ -81,3 +81,14 @@ void setDisplayText()
   }
 
 }
+
+/*
+ * Set the inital display text (IP of WIFI portal 192.168.4.1).
+ */
+void setInitDisplayText() 
+{
+  String ipStr = "19216841";
+  if (DEBUG_DISPLAY) { Serial.print("IP displayed - 192.168.4.1"); }
+  strcpy(_text, ipStr.c_str());
+  _length = strlen(_text);
+}
