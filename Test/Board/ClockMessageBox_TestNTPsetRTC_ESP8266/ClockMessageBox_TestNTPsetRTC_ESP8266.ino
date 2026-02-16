@@ -1,5 +1,5 @@
 /*
-    'ClockMessageBox' by Thurstan. Wifi connected box with LED Matrix showing clock and messages.
+    'ClockMessageBox_TestNTPsetRTC_ESP8266' by Thurstan. Wifi connected box with LED Matrix showing clock and messages.
     Copyright (C) 2026  MTS Standish (Thurstan|mattKsp)
     
     This program is free software: you can redistribute it and/or modify
@@ -21,34 +21,42 @@
     Max7219 LED matrix
     DS3231 Clock
 
-    Idea from original project by aapicella.
+    Original project by aapicella.
     https://github.com/aapicella/WiFi-enables-LED-Matrix
     https://www.instructables.com/id/WIFI-Enabled-LED-Matrix/
 */
+
+/*
+ * Changes to IDE in 2019 mean that NTP time is nowTime embedded. 
+ * This is to test this.
+ */
 
 /*----------------------------libraries-------------------------*/
 #include <MT_LightControlComms.h>
 #include <MT_LightControlDefines.h>
 #include <ESP8266WiFi.h>
 // Web portal @ web page @ 192.168.4.1
-#include <WiFiManager.h>                  // https://github.com/tzapu/WiFiManager 
+#include <WiFiManager.h>                  // https://github.com/tzapu/WiFiManager - clash with ESPAsyncWebServer
 #include <SPI.h>
 #include <MD_Parola.h>                    // https://github.com/MajicDesigns/MD_Parola 
 #include <MD_MAX72xx.h>                   // https://github.com/MajicDesigns/MD_MAX72XX
+
 #include <DS3231_Simple.h>
+//#include <Wire.h>
+
 #include <time.h>
 #include <ArduinoJson.h>                  // https://github.com/bblanchon/ArduinoJson
 #include <PubSubClient.h>                 // https://github.com/knolleary/pubsubclient
 
 /*----------------------------system----------------------------*/
-const String _progName = "ClockMessageBox";
-const String _progVers = "1.6";           // NTP and RTC simples!
-#define DEBUG 0                           // 0 or 1 - remove later - SERIAL OUTPUT
-#define DEBUG_WIFI_HERE 0                 // 0 or 1 - remove later
-#define DEBUG_DISPLAY 0                   // 0 or 1 - remove later
-#define DEBUG_TIME 0                      // 0 or 1 - remove later
-#define DEBUG_BT 0                        // 0 or 1 - remove later
-#define DEBUG_MQTT 0                        // 0 or 1 - remove later
+const String _progName = "ClockMessageBox_TestNTPsetRTC_ESP8266";
+const String _progVers = "1.6";           // Test NTP and set RTC
+#define DEBUG 1                           // 0 or 1 - remove later - SERIAL OUTPUT
+#define DEBUG_WIFI_HERE 1                 // 
+#define DEBUG_DISPLAY 0                   // 
+#define DEBUG_TIME 1                      //
+#define DEBUG_BT 0                        // 
+#define DEBUG_MQTT 1                      // 
 
 /*----------------------------pins------------------------------*/
 // Max7219 to Wemos D1 Mini (SPI - Serial) - 5V
@@ -72,6 +80,7 @@ const char* _apName = "ClockMessageBox";
 const char* _apPassword = "password";
 
 /*-----------------------------MQTT-----------------------------*/
+//PubSubClient mqttClient(MQTT_BROKER_IP, MQTT_BROKER_PORT, mqttCallback, espClient);
 PubSubClient mqttClient(espClient);
 
 unsigned long _mqttConnectionPreviousMillis = millis();
@@ -93,6 +102,7 @@ const PROGMEM char* MQTT_MSG_TOPIC_COMMAND = "house/clkmsgbox1/msg/set";        
 /*-----------------------------Show message and IP--------------*/
 volatile boolean _msgActive = false;      // Is the message currently being shown?
 int _msgTimeoutHr = 1;                    // Message timeout in hours - Change this!
+//int _msgTimeoutMin = 0;                   // Message timeout in minutes - not in use
 int _msgTimeoutNextHr = 0;                // Message timeout saved hour to clear msg 
 int _msgTimeoutNextMin = 0;               // Message timeout saved minute to clear msg
 
@@ -134,17 +144,8 @@ DS3231_Simple rtcClock;
 //String _months[12]={"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 #define MY_NTP_SERVER "uk.pool.ntp.org"
 #define MY_TZ "TZ_Europe_London"  // TimeZone
-bool _firstDNS = false;
 
-uint32_t sntp_update_delay_MS_rfc_not_less_than_15000() 
-{
-  if (_firstDNS) {
-    _firstDNS = false;
-    return 15000; // min = 15000 = 15s
-  } else {
-    return 86400000; // 1 hr = 3,600,000 // 24hrs = 86,400,000 UL
-  }
-}
+/*----------------------------daylight savings------------------*/
 
 
 /*----------------------------main------------------------------*/
@@ -164,25 +165,13 @@ void setup()
 
   pinMode(BT_PIN, INPUT);                 // Set button pin as input (with external 10K pullup)
   
-  setInitDisplayText();
-  setupDisplay();
-  displayText(_text);
   setupWifiManager();
-
   delay(200);
-  setupTimeDate();
-  setupMqtt();
 
-  if (DEBUG) { Serial.println("..setup complete."); }
+  setupTimeDate();
 }
 
 void loop() 
 {
-  checkShowIpBt();
-  loopMqtt();
-  
-  setDisplayText();                             // Contains a check for message cancel button
-  displayText(_text);
 
-  checkBtLock();
 }

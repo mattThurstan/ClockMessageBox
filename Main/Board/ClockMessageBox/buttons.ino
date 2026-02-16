@@ -16,6 +16,7 @@ void checkMsgCancelBt()
 /*
  * Check show IP button.
  * Uses same touch button as message cancel.
+ * Currently being used to show Date and Temperature instead of IP.
  */
 void checkShowIpBt() 
 {

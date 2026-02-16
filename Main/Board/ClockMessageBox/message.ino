@@ -6,14 +6,12 @@
  */
 void receiveMessage(String message)
 {
-  // Copy received message to _text
   message += "    ";
-  strcpy(_text, message.c_str());
+  strcpy(_text, message.c_str());   // Copy received message to _text
   _length=strlen(_text);
 
-  // Set timeout for when message clears and reverts back to being a clock.
-  tmElements_t timeStamp;               // Create a variable to hold the data 
-  timeStamp = GetTime();                // Get the time
+  DateTime timeStamp;               // Create a variable to hold the data 
+  timeStamp = rtcClock.read();      // Ask the clock for the data.
   _msgTimeoutNextHr = timeStamp.Hour + _msgTimeoutHr; // The hour at which to revert
   _msgTimeoutNextMin = timeStamp.Minute;            // The minute at which to revert
 
@@ -21,7 +19,7 @@ void receiveMessage(String message)
   _msgActive = true;
   _showIpActive = false;                // Just in case
   
-  if (DEBUG) { Serial.println("Message active"); Serial.println(_text); }
+  if (DEBUG_MQTT) { Serial.println("Message active"); Serial.println(_text); }
 }
 
 /*

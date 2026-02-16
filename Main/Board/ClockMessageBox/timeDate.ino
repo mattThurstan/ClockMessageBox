@@ -1,85 +1,84 @@
 /*----------------------------timeDate--------------------------*/
+void setupTimeDate() 
+{
+  rtcClock.begin();
 
-/*
- * Update time and date.
- * Spins up an NTP client, connects to world clock and sets the current time.
- * Called during setup if WIFI is available.
- */
-void updateTimeDate() 
-{  
-  _timeClient.begin();                  // Initialise the NTP client
-  _timeClient.setTimeOffset(0);
-  _timeClient.update();
+  if (_wifiAvailable) { 
+    configTime(MY_TZ, MY_NTP_SERVER);
+    uint32_t startTime = millis();
 
-  unsigned long epochTime = _timeClient.getEpochTime();
-  //Get a time structure
-  /* http://www.cplusplus.com/reference/ctime/tm/
-   * tm_sec: seconds after the minute;
-   * tm_min: minutes after the hour;
-   * tm_hour: hours since midnight;
-   * tm_mday: day of the month;
-   * tm_year: years since 1900;
-   * tm_wday: days since Sunday;
-   * tm_yday: days since January 1;
-   * tm_isdst: Daylight Saving Time flag;
-   */
-  struct tm *ptm = gmtime ((time_t *)&epochTime); 
+    if (DEBUG_TIME) {
+      Serial.print("NTP wait for first valid timestamp "); 
+    }
+    while (time(nullptr) < 100000ul) {
+      if (DEBUG_TIME) { Serial.printf("."); }
+      delay(10);
+    }
+    if (DEBUG_TIME) {
+      uint32_t runtimeMillis = millis() - startTime;
+      Serial.printf("\ntime synced in %d ms.\n", runtimeMillis);
+    }
+    _firstDNS = true;
 
-  int monthDay = ptm->tm_mday;
-  int currentMonth = ptm->tm_mon+1;
-  String currentMonthName = _months[currentMonth-1];
-  int currentYear = ptm->tm_year+1900;
-  int yr = currentYear-2000;
-  
-  setTime(_timeClient.getHours(), _timeClient.getMinutes(), _timeClient.getSeconds(), _timeClient.getDay(), currentMonth, yr);
-  saveTime(_timeClient.getDay(), currentMonth, yr, _timeClient.getHours(), _timeClient.getMinutes(), _timeClient.getSeconds());
-
-  if (DEBUG_TIME) {
-    Serial.print("The time has been set to: ");
-    Serial.print(hour());
-    printDigits(minute());
-    printDigits(second());
-    Serial.println();
-    
-    Serial.print("Month day: ");
-    Serial.println(monthDay);
-    Serial.print("Month: ");
-    Serial.println(currentMonth);
-    Serial.print("Month name: ");
-    Serial.println(currentMonthName);
-    Serial.print("Year: ");
-    Serial.println(currentYear);
-    
-    //Print complete date:
-    String currentDate = String(currentYear) + "-" + String(currentMonth) + "-" + String(monthDay);
-    Serial.print("Current date: ");
-    Serial.println(currentDate);
-
-    Serial.print(_daysOfTheWeek[_timeClient.getDay()]);
-    Serial.print(", ");
-    Serial.print(_timeClient.getHours());
-    Serial.print(":");
-    Serial.print(_timeClient.getMinutes());
-    Serial.print(":");
-    Serial.println(_timeClient.getSeconds());
+    updateTimeDate(); 
   }
 }
 
 /*
- * Save time.
- * Takes in the time and saves to RTC.
+ * Update time and date.
+ * Uses ESP8266 internal libs.
+ * uint8_t
  */
-void saveTime(int d, int mo, int yr, int hr, int m, int s)
+void updateTimeDate() 
 {  
-  tmElements_t timeStamp;                 // Create a variable to hold the data 
+  time(&nowTime); //read
+  localtime_r(&nowTime, &tmTime); // update tm
 
-  // Load it with the date and time you want to set
-  timeStamp.Day    = d;
-  timeStamp.Month  = mo;
-  timeStamp.Year   = yr; 
-  timeStamp.Hour   = hr;
-  timeStamp.Minute = m;
-  timeStamp.Second = s;
-    
-  RTC.write(timeStamp);                   // Then write it to the clock
+  uint8_t day = tmTime.tm_mday;
+  uint8_t mon = tmTime.tm_mon + 1;
+  uint8_t yer = tmTime.tm_year;
+  uint8_t hor = tmTime.tm_hour;
+  uint8_t min = tmTime.tm_min;
+  uint8_t sec = tmTime.tm_sec;
+
+  if (DEBUG_TIME) {
+    Serial.println("Time received from NTP: "); 
+    Serial.print(" Hour: ");
+    Serial.print(hor);
+    Serial.print(" Mins: ");
+    Serial.print(min);
+    Serial.print(" Secs: ");
+    Serial.print(sec);
+    Serial.print(" Day: ");
+    Serial.print(day);
+    Serial.print(" Weekday: ");
+    Serial.print(tmTime.tm_wday);
+    Serial.print(" Month: ");
+    Serial.print(mon);
+    Serial.print(" Year: ");
+    Serial.print(yer + 1900);
+    Serial.print(" Daylight saving: ");
+    if (tmTime.tm_isdst == 1) {Serial.print("DST");}
+    else                  {Serial.print("Standard");}
+    Serial.println(""); 
+  } 
+
+  DateTime curTimestamp;
+  
+  curTimestamp.Day    = day;
+  curTimestamp.Month  = mon;
+  curTimestamp.Year   = yer - 100; //26; //yer - 2000; // yer+1900-2000
+  curTimestamp.Hour   = hor;
+  curTimestamp.Minute = min;
+  curTimestamp.Second = sec;
+  
+  rtcClock.write(curTimestamp);
+
+  delay(10);
+  
+  if (DEBUG_TIME) {
+    Serial.print("RTC has been set to: ");
+    rtcClock.printTo(Serial);
+    Serial.println();
+  }
 }
